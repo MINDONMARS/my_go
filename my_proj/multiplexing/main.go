@@ -24,9 +24,18 @@ func branch(x int) chan int { // 每个分支开出一个goroutine做计算并�
 func fanIn(chs ...chan int) chan int {
 	ch := make(chan int)
 
-	for _, c := range chs {
-		go func(c chan int) { ch <- <-c }(c) // 复合
-	}
+	//for _, c := range chs {
+	//	go func(c chan int) { ch <- <-c }(c) // 复合
+	//}
+
+	go func() {
+		for i := 0; i < len(chs); i++ {
+			select {
+			case v1 := <-chs[i]:
+				ch <- v1
+			}
+		}
+	}()
 
 	return ch
 }
